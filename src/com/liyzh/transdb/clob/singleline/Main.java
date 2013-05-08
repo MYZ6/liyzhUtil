@@ -37,7 +37,8 @@ public class Main {
 			// String sqlStr = "select * from t_lpb_protargets";
 			// String sqlStr =
 			// "select DEFPROCESSID,version,name,data from WFMS_DEF_PROCESS where version = '0.2' and name = '生产前资料审批'";
-			String sqlStr = "select DEFPROCESSID,version,name,data from WFMS_DEF_PROCESS where version = '2.2.3.17' and name = '生产阶段审批'";
+			String sqlStr = "select DEFPROCESSID,version,name,data "
+					+ "from WFMS_DEF_PROCESS where version = '0.9' and name = '生产阶段审批'";
 			Statement st = conn.createStatement();
 			System.out.println("创建Statement成功!");
 
@@ -61,33 +62,37 @@ public class Main {
 			// String insertSql =
 			// "insert into WFMS_DEF_PROCESS (data,DEFPROCESSID, TEMPLATEID, PUBSTATUS, VALIDFROM, VALIDTO, LOCKED, AUTHOR, CREATED, DESCRIPTION, NAME, VERSION, DEMOFLAG) values (?,'defp1af90b088163', '402881e63b2c5e8b013b2c6c39c00002', 1, '2012-11-23 00:00:00', null, 1, 'admin', null, '', ?, '0.2', '0')";
 
-			String insertSql = "insert into WFMS_DEF_PROCESS (data,DEFPROCESSID, TEMPLATEID, PUBSTATUS, VALIDFROM, VALIDTO, LOCKED, AUTHOR, CREATED, DESCRIPTION, NAME, VERSION, DEMOFLAG) values (?,'defp577e51248b44', '402881ea37e38d740137e39bfe1f0004', 1, '2012-06-19 00:00:00', null, 1, 'admin', null, '', ?, '2.2.3.17', '0')";
+			String insertSql = "insert into WFMS_DEF_PROCESS"
+					+ " (data,DEFPROCESSID, TEMPLATEID, PUBSTATUS, VALIDFROM, VALIDTO, "
+					+ "LOCKED, AUTHOR, CREATED, DESCRIPTION, NAME, VERSION, DEMOFLAG) "
+					+ "values (?,'defpd338b28887c0', '402881ea37e38d740137e39bfe1f0004', 1,"
+					+ " '2012-06-19 00:00:00', null, 0, 'admin', null, '', '生产阶段审批', '0.9', '0')";
 
-			// Connection conn153 = DriverManager.getConnection(url153, user,
-			// password);
-			// PreparedStatement stat = conn153.prepareStatement(insertSql);
-			// // parameterIndex the first parameter is 1, the second is 2, ...
-			// stat.setBlob(1, fileData);
-			// stat.setString(2, "生产前资料审批");
-			// int result = stat.executeUpdate();
-			// if (result == 1) {
-			// System.out.println("向153数据库复制大字段数据成功！");
-			// }
-			// stat.close();
-			// conn153.close();
-
-			Connection conn48 = DriverManager.getConnection(url48, user,
-					password48);
-			PreparedStatement stat48 = conn48.prepareStatement(insertSql);
+			Connection conn153 = DriverManager.getConnection(url153, user,
+					password);
+			PreparedStatement stat = conn153.prepareStatement(insertSql);
 			// parameterIndex the first parameter is 1, the second is 2, ...
-			stat48.setBlob(1, fileData);
-			stat48.setString(2, "生产前资料审批");
-			int result48 = stat48.executeUpdate();
-			if (result48 == 1) {
-				System.out.println("向48数据库复制大字段数据成功！");
+			stat.setBlob(1, fileData);
+			// stat.setString(2, "生产阶段审批");
+			int result = stat.executeUpdate();
+			if (result == 1) {
+				System.out.println("向153数据库复制大字段数据成功！");
 			}
-			stat48.close();
-			conn48.close();
+			stat.close();
+			conn153.close();
+
+			// Connection conn48 = DriverManager.getConnection(url48, user,
+			// password48);
+			// PreparedStatement stat48 = conn48.prepareStatement(insertSql);
+			// // parameterIndex the first parameter is 1, the second is 2, ...
+			// stat48.setBlob(1, fileData);
+			// stat48.setString(2, "生产前资料审批");
+			// int result48 = stat48.executeUpdate();
+			// if (result48 == 1) {
+			// System.out.println("向48数据库复制大字段数据成功！");
+			// }
+			// stat48.close();
+			// conn48.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
