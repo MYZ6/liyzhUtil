@@ -45,7 +45,7 @@ public class OcpDecoder {
 
 	public static void main(String[] args) {
 		OcpDecoder decoder = new OcpDecoder();
-		String result = decoder.decryptPassword("f01UBhy7fuQ=");
+		String result = decoder.decryptPassword("E0r/eBP8WjM=");
 		System.out.println(result);
 	}
 }

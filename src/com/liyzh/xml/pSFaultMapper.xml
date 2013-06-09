@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- @author liyzh@surekam.com -->
+
+<mapper namespace="com.surekam.pc.dao.PSFaultMapper">
+	<select id="getPSClasses" resultType="Map">
+select p.t_res_ps_class_id as ps_class_id, p.name as ps_class_name
+  from t_res_ps_class p
+ where p.technical_type = 'Segment'
+ order by p.code
+	</select>
+	<select id="getPSClassInfo" parameterType="String" resultType="Map">
+select p.name as ps_class_name, p.description
+  from t_res_ps_class p
+ where p.t_res_ps_class_id = #{ps_class_id}
+	</select>
+	<select id="getPSClassFaults" resultType="Map" parameterType="String">
+select o.code              as fault_code,
+       o.name              as fault_name,
+       oc.name             as fault_class_name,
+       t.t_res_ov_id       as ov_id,
+       t.t_res_ps_class_id as ps_class_id
+  from t_res_ov_class           oc,
+       t_ope_ps_class_ope_fault t,
+       t_res_ps_class           c,
+       t_res_ov                 o
+ where oc.t_res_ov_class_id = o.t_res_ov_class_id
+   and o.t_res_ov_id = t.t_res_ov_id
+   and c.t_res_ps_class_id = t.t_res_ps_class_id
+   and t.t_res_ps_class_id = #{ps_class_id}
+	</select>
+	<insert id = "addPSClassFault" parameterType="Map">
+	 insert into t_ope_ps_class_ope_fault(t_res_ov_id,t_res_ps_class_id)
+ values(#{ov_id},#{ps_class_id}) 
+	</insert>
+	<delete id="deletePSClassFault" parameterType="Map">
+	delete from t_ope_ps_class_ope_fault t
+ where t.t_res_ov_id = #{ov_id}
+   and t.t_res_ps_class_id = #{ps_class_id}
+	</delete>
+</mapper>
