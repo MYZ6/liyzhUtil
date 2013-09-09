@@ -27,7 +27,8 @@ public class ParseChangeLicense {
 		Object localObject1 = null;
 		try {
 			System.out.println("start to get lic file.");
-			File localFile2 = new File("E:\\Personal\\.jrebel\\jrebel.lic");
+			File localFile2 = new File(
+					"E:\\backup\\软件\\jrebel\\jrebel5.3.0\\jrebel-master\\jrebel.lic");
 			// File localFile2 = new File("d:\\temp\\jrebel.lic");
 			Assert.assertNotNull(localFile2);
 			System.out.println("start to get objectInputStream.");
@@ -55,8 +56,10 @@ public class ParseChangeLicense {
 			System.out.println("start to change date.");
 			Calendar cal = new GregorianCalendar(2013, 9, 01);
 			localMap.put("validUntil", cal.getTime());
-			cal.set(Calendar.MONTH, 2);
-			localMap.put("limitedUntil", cal.getTime());
+			// cal.set(Calendar.MONTH, 2);
+			// localMap.put("limitedUntil", cal.getTime());
+			// localMap.put("validFrom", cal.getTime());
+			localMap.put("Seats", 100);
 
 			System.out.println("start to set a new date to license.");
 			ByteArrayOutputStream out1 = new ByteArrayOutputStream();
@@ -79,7 +82,7 @@ public class ParseChangeLicense {
 				System.out.println("key: " + key + ", value: "
 						+ localMap.get(key));
 			}
-			String newLicenseFile = "d:\\new.lic";
+			String newLicenseFile = "d:\\jrebel.lic";
 			ObjectOutputStream out3 = new ObjectOutputStream(
 					new BufferedOutputStream(new FileOutputStream(
 							newLicenseFile)));

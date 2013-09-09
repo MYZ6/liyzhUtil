@@ -23,9 +23,9 @@ public class ParseLicense {
 			System.out.println("start to get lic file.");
 			// File localFile2 = new File(
 			// "C:\\TDDOWNLOAD\\jrebel-master\\jrebel.lic");
-			// File localFile2 = new File("E:\\Personal\\.jrebel\\jrebel.lic");
-			File localFile2 = new File(
-					"C:\\Users\\Administrator\\Downloads\\jrebel\\jrebel.lic");
+			File localFile2 = new File("E:\\Personal\\.jrebel\\jrebel.lic");
+			// File localFile2 = new File(
+			// "E:\\backup\\软件\\jrebel\\jrebel5.3.0\\jrebel-master\\jrebel.lic");
 
 			Assert.assertNotNull(localFile2);
 			System.out.println("start to get objectInputStream.");
