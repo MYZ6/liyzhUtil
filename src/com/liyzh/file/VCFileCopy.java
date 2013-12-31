@@ -9,8 +9,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VCFileCopy {
 	public static void main(String[] args) {
@@ -18,7 +21,8 @@ public class VCFileCopy {
 		Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard()
 				.getContents(null);
 		try {
-			if (t != null && t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+			if (t != null
+					&& t.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 				// 因为原系的剪贴板里有多种信息, 如文字, 图片, 文件等
 				// 先判断开始取得的可传输的数据是不是文字, 如果是, 取得这些文字
 
@@ -30,7 +34,7 @@ public class VCFileCopy {
 				long bytesum = 0;
 				if (lstFile != null && !lstFile.isEmpty()) {
 
-					SimpleDateFormat sdf = new SimpleDateFormat("MMdd_hh");
+					SimpleDateFormat sdf = new SimpleDateFormat("MMdd_HH");
 					String hour = sdf.format(new Date());
 					String newPath = "c:\\mycopy\\" + hour;
 					if (args.length > 0) {
@@ -105,16 +109,39 @@ public class VCFileCopy {
 		int byteread = 0;
 		// 只复制class文件到服务器
 		// 如果是java文件，则复制其相应的class文件
+
+		ArrayList<String> innerCls = new ArrayList<String>();
 		if (fileName.endsWith(".java")) {
 			fileName = fileName.replace(".java", ".class");
-			oldParent = oldParent
-					.replaceAll("src", "web\\\\WEB-INF\\\\classes");
+			String fmpParent = oldParent.replaceAll("src",
+					"web\\\\WEB-INF\\\\classes");
+			if (new File(fmpParent).exists()) {// 如果工程是hyfmp
+				oldParent = fmpParent;
+			} else {// 如果工程是eway_simple
+				oldParent = oldParent.replaceAll("src", "build\\\\classes");
+			}
+			// 搜寻内部类和匿名类的编译文件
+			File clsDir = new File(oldParent);
+			String[] files = clsDir.list();
+			Pattern regex = Pattern.compile(fileName.substring(0,
+					fileName.length() - 6)
+					+ "\\$.*\\.class");// 定义正则表达式
+			for (String f : files) {
+				Matcher matcher = regex.matcher(f);// 定义string1的匹配器
+				if (matcher.find()) {
+					innerCls.add(f);
+				}
+				// System.out.println(f);
+			}
+			System.out.println(innerCls);
 		}
 		String relativePath = oldParent.substring(start);
-		relativePath = relativePath.replaceAll("config",
-				"web\\\\WEB-INF\\\\classes");
+		relativePath = relativePath.replaceAll("config|src|build\\\\classes",
+				"web\\\\WEB-INF\\\\classes");// xwork,spring｜mybatis
+												// mapper|class
+
 		// 统一两个工程文件结构
-		relativePath = relativePath.replaceAll("WebContent", "web");
+		relativePath = relativePath.replaceAll("WebContent", "web");// js,jsp
 		System.out.println(relativePath);
 
 		String newParent = newPath + File.separator + relativePath;
@@ -122,7 +149,7 @@ public class VCFileCopy {
 										// 则建立新文件夹
 		FileInputStream inStream = new FileInputStream(new File(oldParent,
 				fileName));
-		// 读入原文件
+
 		FileOutputStream fs = new FileOutputStream(
 				new File(newParent, fileName));
 		byte[] buffer = new byte[5120];
@@ -132,6 +159,20 @@ public class VCFileCopy {
 		}
 		fs.close();
 		inStream.close();
+
+		// 复制粘贴内部类和匿名类的编译文件
+		for (String cls : innerCls) {
+			FileInputStream fis = new FileInputStream(new File(oldParent, cls));
+			FileOutputStream fos = new FileOutputStream(
+					new File(newParent, cls));
+			while ((byteread = fis.read(buffer)) != -1) {
+				bytesum += byteread; // 字节数 文件大小
+				fos.write(buffer, 0, byteread);
+			}
+			fos.close();
+			fis.close();
+		}
+
 		return bytesum;
 	}
 }
