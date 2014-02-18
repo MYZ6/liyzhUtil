@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		
+		<title>sql格式化成java字符串</title>
+		<script type="text/javascript" src="main.js"></script>
+		<script type="text/javascript" src="jquery.js"></script>
+		<link rel="stylesheet" type="text/css" href="main.css">
+	</head>
+	<body>
+		<div class="middle">
+            <div class="section_content">
+                <h1>sql格式化成java字符串</h1>
+                <div class="formatsql clearfix alert-info alert">
+                    <div  class="inline-block clearfix">
+                        <span  class="l">待格式化SQL代码:</span>
+                        <a class="ui-icon ui-icon-copy l" title="复制" forid="formatsqls"></a>
+                        <a class="ui-icon ui-icon-close l" title="清除" forid="formatsqls"></a>
+                        <a class="ui-icon ui-icon-comment l" title="读取地址" href="javascript:void();" onclick="javascript:showInputUrl('formatsqls')" ></a>
+                    </div>
+                    <textarea name="formatsqls" id="formatsqls" class="textarea">   select a.*,b.* from a,b where a.id=b.id and a.c in (1,2,3)</textarea>
+                    <div class="tc">
+                        <input type="button"  value="转换" onclick="transfer();" id="transfer"  />
+                         &nbsp;&nbsp;    
+                        <input type="button"  value="压缩" onclick="compression();" id="compression"  />                      
+                    </div>
+                    <div class="inline-block clearfix">
+                        <span id='formatinfo' class="r"></span>
+                        <span class="l">格式化后的SQL代码:</span>
+                        <a href="#" class="ui-icon ui-icon-copy l" title="复制" forid="formatsqld">复制</a>
+                        <a href="#" class="ui-icon ui-icon-close l" title="清除" forid="formatsqld">清除</a>
+                        <a href="#" class="ui-icon ui-icon-transferthick-e-w l" title="填充到输入框" forid="formatsqld" toid="formatsqls">填充到输入框</a>
+                    </div>
+                    <textarea name="formatsqld" id="formatsqld" class="textarea"></textarea>
+                </div>                
+            </div>
+		</div>
+	</body>
+</html>
