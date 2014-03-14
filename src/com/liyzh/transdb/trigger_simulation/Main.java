@@ -24,7 +24,8 @@ public class Main {
 
 			e1.printStackTrace();
 		}
-		String url = "jdbc:db2://10.157.220.182:50000/HYDW";
+		// String url = "jdbc:db2://10.157.220.182:50000/HYDW";
+		String url = "jdbc:db2://10.157.220.180:50000/HYDWTEST";
 		String user = "hydw";
 		String password = "hydw";
 		Connection conn;
