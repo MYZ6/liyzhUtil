@@ -31,8 +31,8 @@ public class Main {
 		Connection conn;
 		try {
 			conn = DriverManager.getConnection(url, user, password);
-			Spares spares = new Spares();
-			spares.execute(conn);
+			ProductPlan plan = new ProductPlan();
+			plan.execute(conn);
 			if (conn != null) {
 				conn.close();
 			}
