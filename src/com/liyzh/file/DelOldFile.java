@@ -35,25 +35,27 @@ public class DelOldFile {
 
 			File[] files = fdir.listFiles();
 			for (File f : files) {
-				String fName = f.getName();
-				Timestamp editTime = new Timestamp(f.lastModified());
-				cal.setTimeInMillis(f.lastModified());
-				if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
-					File cFile = new File(dir + File.separator + "week"
-							+ File.separator + fName);
-					if (!cFile.exists()) {
-						try {
-							copyFile(f, cFile);
-						} catch (IOException e) {
-							e.printStackTrace();
+				if (f.isFile()) {// 对非目录进行遍历
+					String fName = f.getName();
+					Timestamp editTime = new Timestamp(f.lastModified());
+					cal.setTimeInMillis(f.lastModified());
+					if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+						File cFile = new File(dir + File.separator + "week"
+								+ File.separator + fName);
+						if (!cFile.exists()) {
+							try {
+								copyFile(f, cFile);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 					}
-				}
-				if (editTime.compareTo(dayTime) < 0) {
-					String msg = "delete day copy : " + fName
-							+ ",lastModifiedTime is : " + editTime;
-					log(msg);
-					f.delete();
+					if (editTime.compareTo(dayTime) < 0) {
+						String msg = "delete day copy : " + fName
+								+ ",lastModifiedTime is : " + editTime;
+						log(msg);
+						f.delete();
+					}
 				}
 			}
 		}
