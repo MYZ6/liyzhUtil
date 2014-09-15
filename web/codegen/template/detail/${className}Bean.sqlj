@@ -1,0 +1,133 @@
+/**
+ * Copyright (c) 2014
+ * Tanry Electronic Technology Co., Ltd.
+ * ChangSha, China
+ * 
+ * All Rights Reserved.
+ * 
+ * First created on ${date} by ${author}
+ * Last edited on ${date} by ${author}
+ * 
+ * comment: ${comment}
+ */
+package logic.${package};
+
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import logic.NoConnection;
+import logic.pool.ConnectionPool;
+
+import org.apache.log4j.Logger;
+
+import pojo.${package}.${className};
+import sqlj.runtime.ref.DefaultContext;
+import util.SqlDateUtil;
+import util.TextUtil;
+import acl.NoPrivilegeException;
+
+public class ${className}Bean extends ConnectionPool {
+
+	public static Logger log = Logger.getLogger(${className}Bean.class);
+	
+	#sql private iterator ${uabbr}Iter(<#list colLst as col>${col.type} ${col.lcamel}<#if col_index != (colLst?size -1)>, </#if></#list>);
+	
+	public int saveEntity(${className} ${abbr})
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		
+		<#list colLst as col>
+		${col.type} ${col.lcamel} = <#if col.type == 'Date'>SqlDateUtil.getSqlDate(${abbr}.get${col.ucamel}())<#else>${abbr}.get${col.ucamel}()</#if>;
+		</#list>
+
+		#sql [myCtx] {
+			INSERT INTO ${tableName} 
+				(<#list colLst as col>${col.snake}<#if col_index != (colLst?size -1)>, </#if></#list>) 
+			VALUES (<#list colLst as col>:${col.lcamel}<#if col_index != (colLst?size -1)>, </#if></#list>)
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public int updateEntity(${className} ${abbr})
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		<#list colLst as col>
+		${col.type} ${col.lcamel} = <#if col.type == 'Date'>SqlDateUtil.getSqlDate(${abbr}.get${col.ucamel}())<#else>${abbr}.get${col.ucamel}()</#if>;
+		</#list>
+
+		#sql [myCtx] {
+			UPDATE
+				${tableName}
+			SET
+				<#list colLst as col>
+				${col.snake} = :${col.lcamel}<#if col_index != (colLst?size -1)>,</#if>
+				</#list>
+			WHERE 
+				FORM_ID = :formId
+			AND ITEM_ID = :itemId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int deleteByForm(String formId)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		#sql [myCtx] {
+			DELETE
+			FROM
+				${tableName}
+			WHERE
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public List<${className}> query(String formId)
+			throws NoPrivilegeException,SQLException,NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		${uabbr}Iter ${abbr}Iter = null;
+		#sql [myCtx] ${abbr}Iter = {
+			SELECT
+			    *
+			FROM
+				${tableName} d
+			WHERE
+			    d.FORM_ID = :formId
+			ORDER BY
+				d.ITEM_ID
+		};
+		List<${className}> ${abbr}Lst = processIter(${abbr}Iter);
+		${abbr}Iter.close();
+		closeDefaultContext(myCtx);
+		return ${abbr}Lst;
+	}
+
+	private List<${className}> processIter(${uabbr}Iter ${abbr}Iter) 
+			throws SQLException {
+		List<${className}> ${abbr}Lst = new ArrayList<${className}>();
+		while(${abbr}Iter.next()) {
+			${className} ${abbr} = new ${className}();
+			<#list colLst as col>
+			${abbr}.set${col.ucamel}(<#rt>
+				<#if col.type == 'Date'>
+					SqlDateUtil.getUtilDate(${abbr}Iter.${col.lsnake}())<#t>
+				<#else>
+					${abbr}Iter.${col.lsnake}()<#t>
+				</#if>
+				);<#lt>
+			</#list>
+			${abbr}Lst.add(${abbr});
+		}
+		return ${abbr}Lst;
+	}
+}

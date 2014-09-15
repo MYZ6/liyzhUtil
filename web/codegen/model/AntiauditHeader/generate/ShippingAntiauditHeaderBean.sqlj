@@ -1,0 +1,151 @@
+/**
+ * Copyright (c) 2014
+ * Tanry Electronic Technology Co., Ltd.
+ * ChangSha, China
+ * 
+ * All Rights Reserved.
+ * 
+ * First created on Tue Sep 16 12:09:07 CST 2014 by lyz
+ * Last edited on Tue Sep 16 12:09:07 CST 2014 by lyz
+ * 
+ * comment: 餐厅配送反审核单表头
+ */
+package logic.form;
+
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import logic.NoConnection;
+import logic.pool.ConnectionPool;
+
+import org.apache.log4j.Logger;
+
+import pojo.form.ShippingAntiauditHeader;
+import sqlj.runtime.ref.DefaultContext;
+import util.SqlDateUtil;
+import util.TextUtil;
+import acl.NoPrivilegeException;
+
+public class ShippingAntiauditHeaderBean extends ConnectionPool {
+
+	public static Logger log = Logger.getLogger(ShippingAntiauditHeaderBean.class);
+	
+	#sql private iterator HeaderIter(String formId, String formRefId, String formName, String antiauditor, Date antiauditBranch, String antiauditTime, Date formNote, String allPayAmt, String maxPayItem);
+	
+	public int saveEntity(ShippingAntiauditHeader header)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		
+		String formId = header.getFormId();
+		String formRefId = header.getFormRefId();
+		String formName = header.getFormName();
+		String antiauditor = header.getAntiauditor();
+		Date antiauditBranch = SqlDateUtil.getSqlDate(header.getAntiauditBranch());
+		String antiauditTime = header.getAntiauditTime();
+		Date formNote = SqlDateUtil.getSqlDate(header.getFormNote());
+		String allPayAmt = header.getAllPayAmt();
+		String maxPayItem = header.getMaxPayItem();
+
+		#sql [myCtx] {
+			INSERT INTO D_T1_SHIPPING_ANTIAUDIT_HEADER 
+				(FORM_ID, FORM_REF_ID, FORM_NAME, ANTIAUDITOR, ANTIAUDIT_BRANCH, ANTIAUDIT_TIME, FORM_NOTE, ALL_PAY_AMT, MAX_PAY_ITEM) 
+			VALUES (:formId, :formRefId, :formName, :antiauditor, :antiauditBranch, :antiauditTime, :formNote, :allPayAmt, :maxPayItem)
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public int updateEntity(ShippingAntiauditHeader header)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		String formId = header.getFormId();
+		String formRefId = header.getFormRefId();
+		String formName = header.getFormName();
+		String antiauditor = header.getAntiauditor();
+		Date antiauditBranch = SqlDateUtil.getSqlDate(header.getAntiauditBranch());
+		String antiauditTime = header.getAntiauditTime();
+		Date formNote = SqlDateUtil.getSqlDate(header.getFormNote());
+		String allPayAmt = header.getAllPayAmt();
+		String maxPayItem = header.getMaxPayItem();
+
+		#sql [myCtx] {
+			UPDATE
+				D_T1_SHIPPING_ANTIAUDIT_HEADER
+			SET
+				FORM_ID = :formId,
+				FORM_REF_ID = :formRefId,
+				FORM_NAME = :formName,
+				ANTIAUDITOR = :antiauditor,
+				ANTIAUDIT_BRANCH = :antiauditBranch,
+				ANTIAUDIT_TIME = :antiauditTime,
+				FORM_NOTE = :formNote,
+				ALL_PAY_AMT = :allPayAmt,
+				MAX_PAY_ITEM = :maxPayItem
+			WHERE 
+				FORM_ID = :formId
+			AND ITEM_ID = :itemId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int deleteByForm(String formId)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		#sql [myCtx] {
+			DELETE
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER
+			WHERE
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public List<ShippingAntiauditHeader> query(String formId)
+			throws NoPrivilegeException,SQLException,NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		HeaderIter headerIter = null;
+		#sql [myCtx] headerIter = {
+			SELECT
+			    *
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER d
+			WHERE
+			    d.FORM_ID = :formId
+			ORDER BY
+				d.ITEM_ID
+		};
+		List<ShippingAntiauditHeader> headerLst = processIter(headerIter);
+		headerIter.close();
+		closeDefaultContext(myCtx);
+		return headerLst;
+	}
+
+	private List<ShippingAntiauditHeader> processIter(HeaderIter headerIter) 
+			throws SQLException {
+		List<ShippingAntiauditHeader> headerLst = new ArrayList<ShippingAntiauditHeader>();
+		while(headerIter.next()) {
+			ShippingAntiauditHeader header = new ShippingAntiauditHeader();
+			header.setFormId(headerIter.form_id());
+			header.setFormRefId(headerIter.form_ref_id());
+			header.setFormName(headerIter.form_name());
+			header.setAntiauditor(headerIter.antiauditor());
+			header.setAntiauditBranch(SqlDateUtil.getUtilDate(headerIter.antiaudit_branch()));
+			header.setAntiauditTime(headerIter.antiaudit_time());
+			header.setFormNote(SqlDateUtil.getUtilDate(headerIter.form_note()));
+			header.setAllPayAmt(headerIter.all_pay_amt());
+			header.setMaxPayItem(headerIter.max_pay_item());
+			headerLst.add(header);
+		}
+		return headerLst;
+	}
+}

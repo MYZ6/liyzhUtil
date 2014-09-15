@@ -1,0 +1,10 @@
+{  
+	"author" : "lyz",
+	"comment" : "餐厅配送反审核单表头",
+	"package" : "form",
+	"tableName" : "D_T1_SHIPPING_ANTIAUDIT_HEADER",
+	"className" : "ShippingAntiauditHeader",
+	"abbr" : "header",
+	"pageAbbr" : "shippingHeader",
+	"templateType" : 'header'
+}

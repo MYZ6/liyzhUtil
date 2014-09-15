@@ -1,0 +1,279 @@
+/**
+ * Copyright (c) 2014
+ * Tanry Electronic Technology Co., Ltd.
+ * ChangSha, China
+ * 
+ * All Rights Reserved.
+ * 
+ * First created on ${date} by ${author}
+ * Last edited on ${date} by ${author}
+ * 
+ * comment: ${comment}
+ */
+package logic.${package};
+
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import logic.NoConnection;
+import logic.pool.ConnectionPool;
+
+import org.apache.log4j.Logger;
+
+import pojo.${package}.${className};
+import sqlj.runtime.ref.DefaultContext;
+import util.SqlDateUtil;
+import util.TextUtil;
+import acl.NoPrivilegeException;
+
+public class ${className}Bean extends ConnectionPool {
+
+	public static Logger log = Logger.getLogger(${className}Bean.class);
+	
+	#sql private iterator ${uabbr}Iter(<#list colLst as col>${col.type} ${col.lcamel}<#if col_index != (colLst?size -1)>, </#if></#list>);
+	
+	public int saveEntity(${className} ${abbr})
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		
+		<#list colLst as col>
+		${col.type} ${col.lcamel} = <#if col.type == 'Date'>SqlDateUtil.getSqlDate(${abbr}.get${col.ucamel}())<#else>${abbr}.get${col.ucamel}()</#if>;
+		</#list>
+
+		#sql [myCtx] {
+			INSERT INTO ${tableName} 
+				(<#list colLst as col>${col.snake}<#if col_index != (colLst?size -1)>, </#if></#list>) 
+			VALUES (<#list colLst as col>:${col.lcamel}<#if col_index != (colLst?size -1)>, </#if></#list>)
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public int updateEntity(${className} ${abbr})
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		<#list colLst as col>
+		${col.type} ${col.lcamel} = <#if col.type == 'Date'>SqlDateUtil.getSqlDate(${abbr}.get${col.ucamel}())<#else>${abbr}.get${col.ucamel}()</#if>;
+		</#list>
+
+		#sql [myCtx] {
+			UPDATE
+				${tableName}
+			SET
+				<#list colLst as col>
+				${col.snake} = :${col.lcamel}<#if col_index != (colLst?size -1)>,</#if>
+				</#list>
+			WHERE 
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int deleteEntity(String formId)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		#sql [myCtx] {
+			DELETE
+			FROM
+				${tableName}
+			WHERE
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public int audit(String formId, String userId, java.util.Date auditTime)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		Date sAuditTime = SqlDateUtil.getSqlDate(auditTime);
+		#sql [myCtx] {
+			UPDATE
+				${tableName}
+			SET
+				auditor = :userId,
+				audit_time = :sAuditTime
+			WHERE 
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int count(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		int total = 0;
+		#sql [myCtx] {
+			SELECT
+			    count(*) into :total
+			FROM
+				${tableName} h
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		closeDefaultContext(myCtx);
+		return total;
+	}
+	
+	private String formQuery(String branchId) {
+		String query = " 1=1";
+		if (!TextUtil.isEmpty(branchId)) {
+			query = query + " AND h.BUYER_NAME = " + branchId;
+		}
+		return query;
+	}
+	
+	public List<${className}> query(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		${uabbr}Iter ${abbr}Iter = null;
+		#sql [myCtx] ${abbr}Iter = {
+			SELECT
+			    *
+			FROM
+				${tableName} h
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		List<${className}> ${abbr}Lst = processIter(${abbr}Iter);
+		${abbr}Iter.close();
+		closeDefaultContext(myCtx);
+		return ${abbr}Lst;
+	}
+	
+	/**
+	 * 获取未审核要货单列表总数
+	 */
+	public int countAudit(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formAuditQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		int total = 0;
+		#sql [myCtx] {
+			SELECT
+			    count(*) into :total
+			FROM
+				${tableName} h
+			LEFT JOIN
+			    JONO.D_T0_FORM_STATUS s
+			ON
+			    s.FORM_ID = h.FORM_ID
+			AND s.IS_CURRENT = 1
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		closeDefaultContext(myCtx);
+		return total;
+	}
+
+	private String formAuditQuery(String branchId) {
+		String query = " 1=1";
+		if (!TextUtil.isEmpty(branchId)) {
+			query = query + " AND h.BUYER_NAME = " + branchId;
+		}
+		query = query + " AND NVL( s.STATUS, 'null') != '已作废'";
+		query = query + " AND NVL( s.STATUS, 'null') != '已审核'";
+		return query;
+	}
+
+	/**
+	 * 获取未审核要货单列表
+	 */
+	public List<${className}> queryAudit(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formAuditQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		${uabbr}Iter ${abbr}Iter = null;
+		#sql [myCtx] ${abbr}Iter = {
+			SELECT
+			    *
+			FROM
+				${tableName} h
+			LEFT JOIN
+			    JONO.D_T0_FORM_STATUS s
+			ON
+			    s.FORM_ID = h.FORM_ID
+			AND s.IS_CURRENT = 1
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+				and h.auditor is null
+		};
+		List<${className}> ${abbr}Lst = processIter(${abbr}Iter);
+		${abbr}Iter.close();
+		closeDefaultContext(myCtx);
+		return ${abbr}Lst;
+	}
+
+	public ${className} queryById(String formId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		${uabbr}Iter ${abbr}Iter = null;
+		#sql [myCtx] ${abbr}Iter = {
+			SELECT
+			    *
+			FROM
+				${tableName} h
+			WHERE
+				h.form_id = :formId
+		};
+		List<${className}> ${abbr}Lst = processIter(${abbr}Iter);
+		${abbr}Iter.close();
+		closeDefaultContext(myCtx);
+		if (${abbr}Lst !=null && !${abbr}Lst.isEmpty()) {
+			return ${abbr}Lst.get(0);
+		}
+		return null;
+	}
+	
+	private List<${className}> processIter(${uabbr}Iter ${abbr}Iter) 
+			throws SQLException {
+		List<${className}> ${abbr}Lst = new ArrayList<${className}>();
+		while(${abbr}Iter.next()) {
+			${className} ${abbr} = new ${className}();
+			<#list colLst as col>
+			${abbr}.set${col.ucamel}(<#rt>
+				<#if col.type == 'Date'>
+					SqlDateUtil.getUtilDate(${abbr}Iter.${col.lsnake}())<#t>
+				<#else>
+					${abbr}Iter.${col.lsnake}()<#t>
+				</#if>
+				);<#lt>
+			</#list>
+			${abbr}Lst.add(${abbr});
+		}
+		return ${abbr}Lst;
+	}
+}

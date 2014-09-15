@@ -1,0 +1,10 @@
+{  
+	"author" : "lyz",
+	"comment" : "餐厅配送反审核单表明细",
+	"package" : "form",
+	"tableName" : "D_T1_SHIPPING_ANTIAUDIT_DETAIL",
+	"className" : "ShippingAntiauditDetail",
+	"abbr" : "detail",
+	"pageAbbr" : "shippingDetail",
+	"templateType" : 'detail'
+}

@@ -1,0 +1,139 @@
+/**
+ * Copyright (c) 2014
+ * Tanry Electronic Technology Co., Ltd.
+ * ChangSha, China
+ * 
+ * All Rights Reserved.
+ * 
+ * First created on Tue Sep 16 12:09:03 CST 2014 by lyz
+ * Last edited on Tue Sep 16 12:09:03 CST 2014 by lyz
+ * 
+ * comment: 餐厅配送反审核单表明细
+ */
+package logic.form;
+
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import logic.NoConnection;
+import logic.pool.ConnectionPool;
+
+import org.apache.log4j.Logger;
+
+import pojo.form.ShippingAntiauditDetail;
+import sqlj.runtime.ref.DefaultContext;
+import util.SqlDateUtil;
+import util.TextUtil;
+import acl.NoPrivilegeException;
+
+public class ShippingAntiauditDetailBean extends ConnectionPool {
+
+	public static Logger log = Logger.getLogger(ShippingAntiauditDetailBean.class);
+	
+	#sql private iterator DetailIter(String formId, String formRefId, String itemId, Double antiauditReceiveCount, Double antiauditReturnCount, Double antiauditPayAmt);
+	
+	public int saveEntity(ShippingAntiauditDetail detail)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		
+		String formId = detail.getFormId();
+		String formRefId = detail.getFormRefId();
+		String itemId = detail.getItemId();
+		Double antiauditReceiveCount = detail.getAntiauditReceiveCount();
+		Double antiauditReturnCount = detail.getAntiauditReturnCount();
+		Double antiauditPayAmt = detail.getAntiauditPayAmt();
+
+		#sql [myCtx] {
+			INSERT INTO D_T1_SHIPPING_ANTIAUDIT_DETAIL 
+				(FORM_ID, FORM_REF_ID, ITEM_ID, ANTIAUDIT_RECEIVE_COUNT, ANTIAUDIT_RETURN_COUNT, ANTIAUDIT_PAY_AMT) 
+			VALUES (:formId, :formRefId, :itemId, :antiauditReceiveCount, :antiauditReturnCount, :antiauditPayAmt)
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public int updateEntity(ShippingAntiauditDetail detail)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		String formId = detail.getFormId();
+		String formRefId = detail.getFormRefId();
+		String itemId = detail.getItemId();
+		Double antiauditReceiveCount = detail.getAntiauditReceiveCount();
+		Double antiauditReturnCount = detail.getAntiauditReturnCount();
+		Double antiauditPayAmt = detail.getAntiauditPayAmt();
+
+		#sql [myCtx] {
+			UPDATE
+				D_T1_SHIPPING_ANTIAUDIT_DETAIL
+			SET
+				FORM_ID = :formId,
+				FORM_REF_ID = :formRefId,
+				ITEM_ID = :itemId,
+				ANTIAUDIT_RECEIVE_COUNT = :antiauditReceiveCount,
+				ANTIAUDIT_RETURN_COUNT = :antiauditReturnCount,
+				ANTIAUDIT_PAY_AMT = :antiauditPayAmt
+			WHERE 
+				FORM_ID = :formId
+			AND ITEM_ID = :itemId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int deleteByForm(String formId)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		#sql [myCtx] {
+			DELETE
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_DETAIL
+			WHERE
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+	
+	public List<ShippingAntiauditDetail> query(String formId)
+			throws NoPrivilegeException,SQLException,NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		DetailIter detailIter = null;
+		#sql [myCtx] detailIter = {
+			SELECT
+			    *
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_DETAIL d
+			WHERE
+			    d.FORM_ID = :formId
+			ORDER BY
+				d.ITEM_ID
+		};
+		List<ShippingAntiauditDetail> detailLst = processIter(detailIter);
+		detailIter.close();
+		closeDefaultContext(myCtx);
+		return detailLst;
+	}
+
+	private List<ShippingAntiauditDetail> processIter(DetailIter detailIter) 
+			throws SQLException {
+		List<ShippingAntiauditDetail> detailLst = new ArrayList<ShippingAntiauditDetail>();
+		while(detailIter.next()) {
+			ShippingAntiauditDetail detail = new ShippingAntiauditDetail();
+			detail.setFormId(detailIter.form_id());
+			detail.setFormRefId(detailIter.form_ref_id());
+			detail.setItemId(detailIter.item_id());
+			detail.setAntiauditReceiveCount(detailIter.antiaudit_receive_count());
+			detail.setAntiauditReturnCount(detailIter.antiaudit_return_count());
+			detail.setAntiauditPayAmt(detailIter.antiaudit_pay_amt());
+			detailLst.add(detail);
+		}
+		return detailLst;
+	}
+}
