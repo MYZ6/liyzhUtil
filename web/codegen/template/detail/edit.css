@@ -1,0 +1,46 @@
+
+#dataGrid {
+	position: absolute;
+	right: 0;
+	top: 150px;
+	bottom: 0px;
+	width: 100%;
+	height: auto; /* override default height: 30em; in dgrid.css */
+}
+
+#commandTable {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+th[role="columnheader"] {
+	text-align: center;
+}
+
+.dgrid-cell {
+	/* 	width: 80px; make all the columns 80px wide */
+	vertical-align: middle;
+}
+
+.field-rownumber, <#rt>
+	<#list colLst as col>
+	.field-${col.lcamel}<#t>
+		<#if col_index != (colLst?size -1)>, </#if><#t>
+	</#list> {<#lt>
+	text-align: center;
+}
+
+.field-rownumber {
+	width: 40px;
+}
+
+<#list colLst as col>
+.field-${col.lcamel} {
+	width: 80px;
+}
+
+</#list>
+.grid-number {
+	text-align: right;
+}

@@ -174,6 +174,7 @@ public class XlsUtil {
 			col.put("lcamel", lcamel);
 			col.put("ucamel", ucamel);
 			col.put("type", result[i][1]);
+			col.put("name", result[i][2]);
 			colLst.add(col);
 		}
 		return colLst;
