@@ -49,23 +49,7 @@ public class XlsUtil {
 		/* 一般在应用的整个生命周期中你仅需要执行一下代码一次 */
 		/* 创建一个合适的configuration */
 		cfg = new Configuration();
-
-		// 设置模板加载的方式
-		// cfg.setDirectoryForTemplateLoading(new File(tpath));
-
-		File tdir = new File(tpath);
-		List<File> dirLst = getSubdirs(tdir);
-		dirLst.add(tdir);// 加入父级窗口
-		FileTemplateLoader[] templateLoaders = new FileTemplateLoader[dirLst
-				.size()];
-		int i = 0;
-		for (File dir : dirLst) {
-			templateLoaders[i++] = new FileTemplateLoader(dir);
-		}
-		MultiTemplateLoader multiTemplateLoader = new MultiTemplateLoader(
-				templateLoaders);
-
-		cfg.setTemplateLoader(multiTemplateLoader);
+		// cfg.setDefaultEncoding("GBK");
 
 		/* 创建一个数据模型Create a data model */
 		model = new HashMap<String, Object>();
@@ -78,6 +62,20 @@ public class XlsUtil {
 			}
 		}
 
+	}
+
+	static void setTemplatePath(File dir) throws IOException {
+		// 设置模板加载的方式
+		// cfg.setDirectoryForTemplateLoading(new File(tpath));
+
+		FileTemplateLoader[] templateLoaders = new FileTemplateLoader[2];
+		File tdir = new File(tpath);
+		templateLoaders[0] = new FileTemplateLoader(tdir);// 加入父级窗口
+		templateLoaders[1] = new FileTemplateLoader(dir);
+		MultiTemplateLoader multiTemplateLoader = new MultiTemplateLoader(
+				templateLoaders);
+
+		cfg.setTemplateLoader(multiTemplateLoader);
 	}
 
 	static List<File> getSubdirs(File file) {
@@ -106,6 +104,8 @@ public class XlsUtil {
 		model = JsonConfig.fillModel(path + "/" + "config.json", model);
 
 		String templateType = (String) model.get("templateType");
+		setTemplatePath(new File(tpath, templateType));// 分类别时模板路径也要分开设置，getTemplate只能根据名字来查找，如果存在多个同名的就会搞不定
+
 		/* 而以下代码你通常会在一个应用生命周期中执行多次 */
 		/* 获取或创建一个模版 */
 		File tdir = new File(tpath);
@@ -116,12 +116,10 @@ public class XlsUtil {
 				String fileName = files[i];
 				if (fileHandlers[i].isDirectory()) {
 					if (templateType.equals(fileName)) { // 根据模板类型选择模板文件
-						File typedir = new File(tpath, fileName);
-						if (typedir.isDirectory()) {
-							String[] subFiles = typedir.list();
-							for (String subFileName : subFiles) {
-								processTemplate(subFileName);
-							}
+						File typedir = fileHandlers[i];
+						String[] subFiles = typedir.list();
+						for (String subFileName : subFiles) {
+							processTemplate(subFileName);
 						}
 					}
 				} else {
@@ -145,7 +143,8 @@ public class XlsUtil {
 		String gdir = currentModelPath + "/generate";
 		new File(gdir).mkdir();
 		FileOutputStream fos = new FileOutputStream(new File(gdir, outfileName));
-		Writer out = new OutputStreamWriter(fos);
+
+		Writer out = new OutputStreamWriter(fos, "GBK");
 		temp.process(model, out);
 		out.flush();
 	}

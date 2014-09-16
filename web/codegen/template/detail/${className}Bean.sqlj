@@ -32,7 +32,7 @@ public class ${className}Bean extends ConnectionPool {
 
 	public static Logger log = Logger.getLogger(${className}Bean.class);
 	
-	#sql private iterator ${uabbr}Iter(<#list colLst as col>${col.type} ${col.lcamel}<#if col_index != (colLst?size -1)>, </#if></#list>);
+	#sql private iterator ${uabbr}Iter(<#list colLst as col>${col.type} ${col.lsnake}<#if col_index != (colLst?size -1)>, </#if></#list>);
 	
 	public int saveEntity(${className} ${abbr})
 		throws NoPrivilegeException, SQLException, NoConnection {
