@@ -5,10 +5,10 @@
  * 
  * All Rights Reserved.
  * 
- * First created on Tue Sep 16 12:09:03 CST 2014 by lyz
- * Last edited on Tue Sep 16 12:09:03 CST 2014 by lyz
+ * First created on Tue Sep 16 16:28:32 CST 2014 by lyz
+ * Last edited on Tue Sep 16 16:28:32 CST 2014 by lyz
  * 
- * 璇存槑锛氶鍘呴厤閫佸弽瀹℃牳鍗曡〃鏄庣粏
+ * 说明：餐厅配送反审核单表明细
  */
 package pojo.form;
 
@@ -20,7 +20,7 @@ public class ShippingAntiauditDetail {
 	private Double antiauditReturnCount;
 	private Double antiauditPayAmt;
 
-	pubic String getFormId() {
+	public String getFormId() {
 		return this.formId;
 	}
 
@@ -28,7 +28,7 @@ public class ShippingAntiauditDetail {
 		this.formId = formId;
 	}
 
-	pubic String getFormRefId() {
+	public String getFormRefId() {
 		return this.formRefId;
 	}
 
@@ -36,7 +36,7 @@ public class ShippingAntiauditDetail {
 		this.formRefId = formRefId;
 	}
 
-	pubic String getItemId() {
+	public String getItemId() {
 		return this.itemId;
 	}
 
@@ -44,7 +44,7 @@ public class ShippingAntiauditDetail {
 		this.itemId = itemId;
 	}
 
-	pubic Double getAntiauditReceiveCount() {
+	public Double getAntiauditReceiveCount() {
 		return this.antiauditReceiveCount;
 	}
 
@@ -52,7 +52,7 @@ public class ShippingAntiauditDetail {
 		this.antiauditReceiveCount = antiauditReceiveCount;
 	}
 
-	pubic Double getAntiauditReturnCount() {
+	public Double getAntiauditReturnCount() {
 		return this.antiauditReturnCount;
 	}
 
@@ -60,7 +60,7 @@ public class ShippingAntiauditDetail {
 		this.antiauditReturnCount = antiauditReturnCount;
 	}
 
-	pubic Double getAntiauditPayAmt() {
+	public Double getAntiauditPayAmt() {
 		return this.antiauditPayAmt;
 	}
 

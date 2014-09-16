@@ -5,10 +5,10 @@
  * 
  * All Rights Reserved.
  * 
- * First created on Tue Sep 16 12:09:03 CST 2014 by lyz
- * Last edited on Tue Sep 16 12:09:03 CST 2014 by lyz
+ * First created on Tue Sep 16 16:28:32 CST 2014 by lyz
+ * Last edited on Tue Sep 16 16:28:32 CST 2014 by lyz
  * 
- * comment: é¤å…é…é€åå®¡æ ¸å•è¡¨æ˜ç»†
+ * comment: ²ÍÌüÅäËÍ·´ÉóºËµ¥±íÃ÷Ï¸
  */
 package logic.form;
 
@@ -32,7 +32,7 @@ public class ShippingAntiauditDetailBean extends ConnectionPool {
 
 	public static Logger log = Logger.getLogger(ShippingAntiauditDetailBean.class);
 	
-	#sql private iterator DetailIter(String formId, String formRefId, String itemId, Double antiauditReceiveCount, Double antiauditReturnCount, Double antiauditPayAmt);
+	#sql private iterator DetailIter(String form_id, String form_ref_id, String item_id, Double antiaudit_receive_count, Double antiaudit_return_count, Double antiaudit_pay_amt);
 	
 	public int saveEntity(ShippingAntiauditDetail detail)
 		throws NoPrivilegeException, SQLException, NoConnection {

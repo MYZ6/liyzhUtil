@@ -2,7 +2,6 @@ package com.liyzh.encode;
 
 import java.security.Key;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,8 +10,6 @@ import java.sql.Statement;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
-
-import org.bouncycastle.util.encoders.Base64;
 
 public class OcpDecoder {
 	public static final String URL153 = "jdbc:db2://10.157.33.153:50000/FMS";
@@ -94,9 +91,10 @@ public class OcpDecoder {
 			Cipher cipher = Cipher.getInstance("DESEDE/ECB/PKCS5Padding");
 			// 用密匙初始化Cipher对象
 			cipher.init(Cipher.DECRYPT_MODE, deskey);
-			byte[] clearByte = cipher.doFinal(Base64.decode(encPass
-					.getBytes("UTF-8")));
-			return new String(clearByte, "UTF-8");
+			// byte[] clearByte = cipher.doFinal(Base64.decode(encPass
+			// .getBytes("UTF-8")));
+			// return new String(clearByte, "UTF-8");
+			return null;
 		} catch (java.security.NoSuchAlgorithmException e1) {
 			throw new RuntimeException(e1);
 		} catch (javax.crypto.NoSuchPaddingException e2) {
@@ -108,10 +106,10 @@ public class OcpDecoder {
 
 	private static Key getDesKey() {
 		try {
-			Security.addProvider(new sun.security.provider.Sun());
+			// Security.addProvider(new sun.security.provider.Sun());
 			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
 			sr.setSeed("seed".getBytes("UTF-8"));
-			Security.addProvider(new com.sun.crypto.provider.SunJCE());
+			// Security.addProvider(new com.sun.crypto.provider.SunJCE());
 			KeyGenerator kGen = KeyGenerator.getInstance("DESEDE", "SunJCE");
 			kGen.init(168, sr);
 			return kGen.generateKey();

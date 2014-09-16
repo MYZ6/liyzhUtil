@@ -5,10 +5,10 @@
  * 
  * All Rights Reserved.
  * 
- * First created on Tue Sep 16 12:09:07 CST 2014 by lyz
- * Last edited on Tue Sep 16 12:09:07 CST 2014 by lyz
+ * First created on Tue Sep 16 16:28:32 CST 2014 by lyz
+ * Last edited on Tue Sep 16 16:28:32 CST 2014 by lyz
  * 
- * comment: È§êÂéÖÈÖçÈÄÅÂèçÂÆ°Ê†∏ÂçïË°®Â§¥
+ * comment: ≤ÕÃ¸≈‰ÀÕ∑¥…Û∫Àµ•±ÌÕ∑
  */
 package logic.form;
 
@@ -32,7 +32,7 @@ public class ShippingAntiauditHeaderBean extends ConnectionPool {
 
 	public static Logger log = Logger.getLogger(ShippingAntiauditHeaderBean.class);
 	
-	#sql private iterator HeaderIter(String formId, String formRefId, String formName, String antiauditor, Date antiauditBranch, String antiauditTime, Date formNote, String allPayAmt, String maxPayItem);
+	#sql private iterator HeaderIter(String form_id, String form_ref_id, String form_name, String antiauditor, Date antiaudit_branch, String antiaudit_time, Date form_note, String all_pay_amt, String max_pay_item);
 	
 	public int saveEntity(ShippingAntiauditHeader header)
 		throws NoPrivilegeException, SQLException, NoConnection {
@@ -87,14 +87,13 @@ public class ShippingAntiauditHeaderBean extends ConnectionPool {
 				MAX_PAY_ITEM = :maxPayItem
 			WHERE 
 				FORM_ID = :formId
-			AND ITEM_ID = :itemId
 		};
 		closeDefaultContext(myCtx);
 		
 		return 1;
 	}
 
-	public int deleteByForm(String formId)
+	public int deleteEntity(String formId)
 		throws NoPrivilegeException, SQLException, NoConnection {
 		DefaultContext myCtx = getDefaultContext();
 
@@ -110,19 +109,145 @@ public class ShippingAntiauditHeaderBean extends ConnectionPool {
 		return 1;
 	}
 	
-	public List<ShippingAntiauditHeader> query(String formId)
+	public int audit(String formId, String userId, java.util.Date auditTime)
+		throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+
+		Date sAuditTime = SqlDateUtil.getSqlDate(auditTime);
+		#sql [myCtx] {
+			UPDATE
+				D_T1_SHIPPING_ANTIAUDIT_HEADER
+			SET
+				auditor = :userId,
+				audit_time = :sAuditTime
+			WHERE 
+				FORM_ID = :formId
+		};
+		closeDefaultContext(myCtx);
+		
+		return 1;
+	}
+
+	public int count(java.util.Date startDate, java.util.Date endDate, String branchId) 
 			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		int total = 0;
+		#sql [myCtx] {
+			SELECT
+			    count(*) into :total
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER h
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		closeDefaultContext(myCtx);
+		return total;
+	}
+	
+	private String formQuery(String branchId) {
+		String query = " 1=1";
+		if (!TextUtil.isEmpty(branchId)) {
+			query = query + " AND h.BUYER_NAME = " + branchId;
+		}
+		return query;
+	}
+	
+	public List<ShippingAntiauditHeader> query(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
 		DefaultContext myCtx = getDefaultContext();
 		HeaderIter headerIter = null;
 		#sql [myCtx] headerIter = {
 			SELECT
 			    *
 			FROM
-				D_T1_SHIPPING_ANTIAUDIT_HEADER d
+				D_T1_SHIPPING_ANTIAUDIT_HEADER h
 			WHERE
-			    d.FORM_ID = :formId
-			ORDER BY
-				d.ITEM_ID
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		List<ShippingAntiauditHeader> headerLst = processIter(headerIter);
+		headerIter.close();
+		closeDefaultContext(myCtx);
+		return headerLst;
+	}
+	
+	/**
+	 * ªÒ»°Œ¥…Û∫À“™ªıµ•¡–±Ì◊‹ ˝
+	 */
+	public int countAudit(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formAuditQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		int total = 0;
+		#sql [myCtx] {
+			SELECT
+			    count(*) into :total
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER h
+			LEFT JOIN
+			    JONO.D_T0_FORM_STATUS s
+			ON
+			    s.FORM_ID = h.FORM_ID
+			AND s.IS_CURRENT = 1
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+		};
+		closeDefaultContext(myCtx);
+		return total;
+	}
+
+	private String formAuditQuery(String branchId) {
+		String query = " 1=1";
+		if (!TextUtil.isEmpty(branchId)) {
+			query = query + " AND h.BUYER_NAME = " + branchId;
+		}
+		query = query + " AND NVL( s.STATUS, 'null') != '“—◊˜∑œ'";
+		query = query + " AND NVL( s.STATUS, 'null') != '“—…Û∫À'";
+		return query;
+	}
+
+	/**
+	 * ªÒ»°Œ¥…Û∫À“™ªıµ•¡–±Ì
+	 */
+	public List<ShippingAntiauditHeader> queryAudit(java.util.Date startDate, java.util.Date endDate, String branchId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		String query = formAuditQuery(branchId);
+		Date sDate = SqlDateUtil.getSqlDate(startDate);
+		Date eDate = SqlDateUtil.getSqlDate(endDate);
+		
+		DefaultContext myCtx = getDefaultContext();
+		HeaderIter headerIter = null;
+		#sql [myCtx] headerIter = {
+			SELECT
+			    *
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER h
+			LEFT JOIN
+			    JONO.D_T0_FORM_STATUS s
+			ON
+			    s.FORM_ID = h.FORM_ID
+			AND s.IS_CURRENT = 1
+			WHERE
+				:{query ::}
+			AND (h.AUDIT_TIME >= :sDate or :sDate is null)
+			AND (h.AUDIT_TIME <= :eDate or :eDate is null)
+				and h.auditor is null
 		};
 		List<ShippingAntiauditHeader> headerLst = processIter(headerIter);
 		headerIter.close();
@@ -130,6 +255,27 @@ public class ShippingAntiauditHeaderBean extends ConnectionPool {
 		return headerLst;
 	}
 
+	public ShippingAntiauditHeader queryById(String formId) 
+			throws NoPrivilegeException,SQLException,NoConnection {
+		DefaultContext myCtx = getDefaultContext();
+		HeaderIter headerIter = null;
+		#sql [myCtx] headerIter = {
+			SELECT
+			    *
+			FROM
+				D_T1_SHIPPING_ANTIAUDIT_HEADER h
+			WHERE
+				h.form_id = :formId
+		};
+		List<ShippingAntiauditHeader> headerLst = processIter(headerIter);
+		headerIter.close();
+		closeDefaultContext(myCtx);
+		if (headerLst !=null && !headerLst.isEmpty()) {
+			return headerLst.get(0);
+		}
+		return null;
+	}
+	
 	private List<ShippingAntiauditHeader> processIter(HeaderIter headerIter) 
 			throws SQLException {
 		List<ShippingAntiauditHeader> headerLst = new ArrayList<ShippingAntiauditHeader>();

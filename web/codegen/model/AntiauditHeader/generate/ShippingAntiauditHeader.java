@@ -5,10 +5,10 @@
  * 
  * All Rights Reserved.
  * 
- * First created on Tue Sep 16 12:09:07 CST 2014 by lyz
- * Last edited on Tue Sep 16 12:09:07 CST 2014 by lyz
+ * First created on Tue Sep 16 16:28:32 CST 2014 by lyz
+ * Last edited on Tue Sep 16 16:28:32 CST 2014 by lyz
  * 
- * è¯´æ˜ï¼šé¤å…é…é€åå®¡æ ¸å•è¡¨å¤´
+ * ËµÃ÷£º²ÍÌüÅäËÍ·´ÉóºËµ¥±íÍ·
  */
 package pojo.form;
 
@@ -23,7 +23,7 @@ public class ShippingAntiauditHeader {
 	private String allPayAmt;
 	private String maxPayItem;
 
-	pubic String getFormId() {
+	public String getFormId() {
 		return this.formId;
 	}
 
@@ -31,7 +31,7 @@ public class ShippingAntiauditHeader {
 		this.formId = formId;
 	}
 
-	pubic String getFormRefId() {
+	public String getFormRefId() {
 		return this.formRefId;
 	}
 
@@ -39,7 +39,7 @@ public class ShippingAntiauditHeader {
 		this.formRefId = formRefId;
 	}
 
-	pubic String getFormName() {
+	public String getFormName() {
 		return this.formName;
 	}
 
@@ -47,7 +47,7 @@ public class ShippingAntiauditHeader {
 		this.formName = formName;
 	}
 
-	pubic String getAntiauditor() {
+	public String getAntiauditor() {
 		return this.antiauditor;
 	}
 
@@ -55,7 +55,7 @@ public class ShippingAntiauditHeader {
 		this.antiauditor = antiauditor;
 	}
 
-	pubic Date getAntiauditBranch() {
+	public Date getAntiauditBranch() {
 		return this.antiauditBranch;
 	}
 
@@ -63,7 +63,7 @@ public class ShippingAntiauditHeader {
 		this.antiauditBranch = antiauditBranch;
 	}
 
-	pubic String getAntiauditTime() {
+	public String getAntiauditTime() {
 		return this.antiauditTime;
 	}
 
@@ -71,7 +71,7 @@ public class ShippingAntiauditHeader {
 		this.antiauditTime = antiauditTime;
 	}
 
-	pubic Date getFormNote() {
+	public Date getFormNote() {
 		return this.formNote;
 	}
 
@@ -79,7 +79,7 @@ public class ShippingAntiauditHeader {
 		this.formNote = formNote;
 	}
 
-	pubic String getAllPayAmt() {
+	public String getAllPayAmt() {
 		return this.allPayAmt;
 	}
 
@@ -87,7 +87,7 @@ public class ShippingAntiauditHeader {
 		this.allPayAmt = allPayAmt;
 	}
 
-	pubic String getMaxPayItem() {
+	public String getMaxPayItem() {
 		return this.maxPayItem;
 	}
 
