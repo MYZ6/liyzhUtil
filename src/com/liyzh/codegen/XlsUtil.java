@@ -13,19 +13,24 @@
 package com.liyzh.codegen;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.CaseFormat;
 import com.liyzh.excel.ExcelOperate;
 import com.liyzh.java.regex.Snake2Camel;
 
+import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -46,7 +51,21 @@ public class XlsUtil {
 		cfg = new Configuration();
 
 		// 设置模板加载的方式
-		cfg.setDirectoryForTemplateLoading(new File(tpath));
+		// cfg.setDirectoryForTemplateLoading(new File(tpath));
+
+		File tdir = new File(tpath);
+		List<File> dirLst = getSubdirs(tdir);
+		dirLst.add(tdir);// 加入父级窗口
+		FileTemplateLoader[] templateLoaders = new FileTemplateLoader[dirLst
+				.size()];
+		int i = 0;
+		for (File dir : dirLst) {
+			templateLoaders[i++] = new FileTemplateLoader(dir);
+		}
+		MultiTemplateLoader multiTemplateLoader = new MultiTemplateLoader(
+				templateLoaders);
+
+		cfg.setTemplateLoader(multiTemplateLoader);
 
 		/* 创建一个数据模型Create a data model */
 		model = new HashMap<String, Object>();
@@ -61,6 +80,22 @@ public class XlsUtil {
 
 	}
 
+	static List<File> getSubdirs(File file) {
+		List<File> subdirs = Arrays.asList(file.listFiles(new FileFilter() {
+			public boolean accept(File f) {
+				return f.isDirectory();
+			}
+		}));
+		subdirs = new ArrayList<File>(subdirs);
+
+		List<File> deepSubdirs = new ArrayList<File>();
+		for (File subdir : subdirs) {
+			deepSubdirs.addAll(getSubdirs(subdir));
+		}
+		subdirs.addAll(deepSubdirs);
+		return subdirs;
+	}
+
 	public static void processModel(String path) throws FileNotFoundException,
 			IOException, TemplateException {
 		currentModelPath = path;
@@ -70,13 +105,28 @@ public class XlsUtil {
 
 		model = JsonConfig.fillModel(path + "/" + "config.json", model);
 
+		String templateType = (String) model.get("templateType");
 		/* 而以下代码你通常会在一个应用生命周期中执行多次 */
 		/* 获取或创建一个模版 */
 		File tdir = new File(tpath);
 		if (tdir.isDirectory()) {
 			String[] files = tdir.list();
-			for (String fileName : files) {
-				processTemplate(fileName);
+			File[] fileHandlers = tdir.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				String fileName = files[i];
+				if (fileHandlers[i].isDirectory()) {
+					if (templateType.equals(fileName)) { // 根据模板类型选择模板文件
+						File typedir = new File(tpath, fileName);
+						if (typedir.isDirectory()) {
+							String[] subFiles = typedir.list();
+							for (String subFileName : subFiles) {
+								processTemplate(subFileName);
+							}
+						}
+					}
+				} else {
+					processTemplate(fileName);
+				}
 			}
 		}
 	}
@@ -119,6 +169,9 @@ public class XlsUtil {
 			String lcamel = Snake2Camel.snakeToLowerCamel(snake);
 			String ucamel = Snake2Camel.snakeToUpperCamel(snake);
 			Map<String, String> col = new HashMap<String, String>();
+			col.put("snake", snake);
+			col.put("lsnake", CaseFormat.UPPER_UNDERSCORE.to(
+					CaseFormat.LOWER_UNDERSCORE, snake));
 			col.put("lcamel", lcamel);
 			col.put("ucamel", ucamel);
 			col.put("type", result[i][1]);
