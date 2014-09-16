@@ -18,7 +18,7 @@ public class ${className} {
 	</#list>
 
 	<#list colLst as col>
-	pubic ${col.type} get${col.ucamel}() {
+	public ${col.type} get${col.ucamel}() {
 		return this.${col.lcamel};
 	}
 

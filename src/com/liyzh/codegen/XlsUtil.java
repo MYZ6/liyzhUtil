@@ -49,6 +49,7 @@ public class XlsUtil {
 		/* 一般在应用的整个生命周期中你仅需要执行一下代码一次 */
 		/* 创建一个合适的configuration */
 		cfg = new Configuration();
+		// cfg.setDefaultEncoding("GBK");
 
 		// 设置模板加载的方式
 		// cfg.setDirectoryForTemplateLoading(new File(tpath));
@@ -145,7 +146,8 @@ public class XlsUtil {
 		String gdir = currentModelPath + "/generate";
 		new File(gdir).mkdir();
 		FileOutputStream fos = new FileOutputStream(new File(gdir, outfileName));
-		Writer out = new OutputStreamWriter(fos);
+
+		Writer out = new OutputStreamWriter(fos, "GBK");
 		temp.process(model, out);
 		out.flush();
 	}
