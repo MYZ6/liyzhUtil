@@ -58,7 +58,9 @@ public class XlsUtil {
 		if (mdir.isDirectory()) {
 			String[] dirs = mdir.list();
 			for (String dir : dirs) {
-				processModel(mpath + "/" + dir);
+				if (dir.indexOf("Transfer") >= 0) {
+					processModel(mpath + "/" + dir);
+				}
 			}
 		}
 
@@ -164,7 +166,7 @@ public class XlsUtil {
 		int rowLength = result.length;
 		List<Map<String, String>> colLst = new ArrayList<Map<String, String>>();
 		for (int i = 1; i < rowLength; i++) {
-			String snake = result[i][0];
+			String snake = result[i][0].trim();
 			String lcamel = Snake2Camel.snakeToLowerCamel(snake);
 			String ucamel = Snake2Camel.snakeToUpperCamel(snake);
 			Map<String, String> col = new HashMap<String, String>();
