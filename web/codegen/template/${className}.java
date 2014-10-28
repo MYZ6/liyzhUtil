@@ -14,6 +14,9 @@ package pojo.${package};
 
 public class ${className} {	
 	<#list colLst as col>
+	/**
+	 * ${col.name}
+	 */
 	private ${col.type} ${col.lcamel};
 	</#list>
 
