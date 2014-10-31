@@ -8,7 +8,7 @@
  * First created on Sep 15, 2014 by liyzh
  * Last edited on Sep 15, 2014 by liyzh
  * 
- * 说明： TODO
+ * 说明： 这个文件成了代码生成的原始代码，更加完善的版本已经迁移到了单独的工程中sqljgen，使用金山快盘进行SVN的数据同步
  */
 package com.liyzh.codegen;
 
@@ -58,7 +58,7 @@ public class XlsUtil {
 		if (mdir.isDirectory()) {
 			String[] dirs = mdir.list();
 			for (String dir : dirs) {
-				if (dir.indexOf("Transfer") >= 0) {
+				if (dir.indexOf("emplateMeta") >= 0) { // auditH,TransferH
 					processModel(mpath + "/" + dir);
 				}
 			}
@@ -74,8 +74,7 @@ public class XlsUtil {
 		File tdir = new File(tpath);
 		templateLoaders[0] = new FileTemplateLoader(tdir);// 加入父级窗口
 		templateLoaders[1] = new FileTemplateLoader(dir);
-		MultiTemplateLoader multiTemplateLoader = new MultiTemplateLoader(
-				templateLoaders);
+		MultiTemplateLoader multiTemplateLoader = new MultiTemplateLoader(templateLoaders);
 
 		cfg.setTemplateLoader(multiTemplateLoader);
 	}
@@ -96,8 +95,7 @@ public class XlsUtil {
 		return subdirs;
 	}
 
-	public static void processModel(String path) throws FileNotFoundException,
-			IOException, TemplateException {
+	public static void processModel(String path) throws FileNotFoundException, IOException, TemplateException {
 		currentModelPath = path;
 		File file = new File(path, "col.xls");
 		List<Map<String, String>> colLst = processCol(file);
@@ -136,8 +134,7 @@ public class XlsUtil {
 	 * @throws IOException 
 	 * @throws TemplateException 
 	 */
-	private static void processTemplate(String fileName) throws IOException,
-			TemplateException {
+	private static void processTemplate(String fileName) throws IOException, TemplateException {
 		String outfileName = processForOutputFilepath(model, fileName, cfg);
 		Template temp = cfg.getTemplate(fileName);
 
@@ -152,15 +149,12 @@ public class XlsUtil {
 	}
 
 	/** 处理文件路径的变量变成输出路径 */
-	public static String processForOutputFilepath(
-			Map<String, Object> filePathModel, String templateFile,
+	public static String processForOutputFilepath(Map<String, Object> filePathModel, String templateFile,
 			Configuration conf) throws IOException {
-		return FreemarkerHelper.processTemplateString(templateFile,
-				filePathModel, conf);
+		return FreemarkerHelper.processTemplateString(templateFile, filePathModel, conf);
 	}
 
-	public static List<Map<String, String>> processCol(File file)
-			throws FileNotFoundException, IOException {
+	public static List<Map<String, String>> processCol(File file) throws FileNotFoundException, IOException {
 		String[][] result = ExcelOperate.getData(file, 0);
 
 		int rowLength = result.length;
@@ -171,8 +165,7 @@ public class XlsUtil {
 			String ucamel = Snake2Camel.snakeToUpperCamel(snake);
 			Map<String, String> col = new HashMap<String, String>();
 			col.put("snake", snake);
-			col.put("lsnake", CaseFormat.UPPER_UNDERSCORE.to(
-					CaseFormat.LOWER_UNDERSCORE, snake));
+			col.put("lsnake", CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_UNDERSCORE, snake));
 			col.put("lcamel", lcamel);
 			col.put("ucamel", ucamel);
 			col.put("type", result[i][1]);
