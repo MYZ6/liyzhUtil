@@ -38,6 +38,7 @@ public class FindGbkJava {
 			}
 		}
 		System.out.println(count);
+
 		System.out.println(fileLst.size());
 		System.out.println(fileLst2.size());
 	}
