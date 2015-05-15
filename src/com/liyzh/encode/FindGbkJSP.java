@@ -16,20 +16,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 public class FindGbkJSP {
 	private static List<File> fileLst = new ArrayList<File>();
 	private static List<File> fileLst2 = new ArrayList<File>();
 
-	public static void main(String[] args) {
-		String path = "F:/Personal/ws_tanry/erp/jsp";
+	public static void main(String[] args) throws IOException {
+		String path = "F:/Personal/ws_tanry/erp/mobile";
 		File root = new File(path);
 		int count = 0;
 		for (File file : root.listFiles()) {
@@ -46,7 +43,7 @@ public class FindGbkJSP {
 	}
 
 	private static boolean excludeDir(String dirName) {
-		String[] eArr = new String[] { "lib", "", "" };
+		String[] eArr = new String[] { "framework", "lib", "" };
 		for (String edir : eArr) {
 			if (edir.equals(dirName)) {
 				return true;
@@ -55,7 +52,7 @@ public class FindGbkJSP {
 		return false;
 	}
 
-	private static int iterate(File dir) {
+	private static int iterate(File dir) throws IOException {
 		int count = 0;
 		for (File file : dir.listFiles()) {
 			if (file.isDirectory() && !excludeDir(file.getName())) {
@@ -80,35 +77,24 @@ public class FindGbkJSP {
 		return count;
 	}
 
-	private static boolean existGBK(File file) {
+	private static boolean existGBK(File file) throws IOException {
 		boolean exist = false;
-		BufferedReader reader = null;
-		StringBuilder sb = new StringBuilder();
-		try {
-			reader = new BufferedReader(new FileReader(file));
-			String tempString = null;
-			// 一次读入一行，直到读入null为文件结束
-			while ((tempString = reader.readLine()) != null) {
-				if (tempString.indexOf("charset=gbk") >= 0 || tempString.indexOf("charset=GBK") >= 0
-						|| tempString.indexOf("charset=GB2312") >= 0 || tempString.indexOf("charset=gb2312") >= 0) {
-					System.out.println(tempString);
-					convert(file);
-					fileLst2.add(file);
-					exist = true;
-					break;
-				}
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e1) {
-				}
+
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String tempString = null;
+		// 一次读入一行，直到读入null为文件结束
+		while ((tempString = reader.readLine()) != null) {
+			if (tempString.indexOf("charset=gbk") >= 0 || tempString.indexOf("charset=GBK") >= 0
+					|| tempString.indexOf("charset=GB2312") >= 0 || tempString.indexOf("charset=gb2312") >= 0
+					|| tempString.indexOf("pageEncoding=\"GBK\"") >= 0) {
+				System.out.println(tempString);
+				convert(file);
+				fileLst2.add(file);
+				exist = true;
+				break;
 			}
 		}
+		reader.close();
 		return exist;
 	}
 
@@ -119,14 +105,18 @@ public class FindGbkJSP {
 		// FileUtils.writeStringToFile(file, content, "UTF-8");
 
 		// replace
-		Path path = Paths.get(file.getAbsolutePath());
-		Charset charset = StandardCharsets.UTF_8;
+		// Path path = Paths.get(file.getAbsolutePath());
+		// Charset charset = StandardCharsets.UTF_8;
+		// String content = new String(Files.readAllBytes(path), charset);
 
-		String content = new String(Files.readAllBytes(path), charset);
+		String content = FileUtils.readFileToString(file, "GBK");
 		content = content.replaceAll("GBK", "UTF-8");
 		content = content.replaceAll("gbk", "UTF-8");
 		content = content.replaceAll("GB2312", "UTF-8");
 		content = content.replaceAll("gb2312", "UTF-8");
-		Files.write(path, content.getBytes(charset));
+
+		System.out.println(content);
+		FileUtils.writeStringToFile(file, content, "UTF-8");
+		// Files.write(path, content.getBytes(charset));
 	}
 }
