@@ -1,0 +1,37 @@
+package logic.module.hq;
+
+import java.sql.SQLException;
+
+import logic.NoConnection;
+import oracle.sqlj.runtime.Oracle;
+import sqlj.runtime.ExecutionContext;
+import sqlj.runtime.ref.DefaultContext;
+
+import com.tanry.framework.acl.NoPrivilegeException;
+
+public class Test {
+
+	public static void main(String[] args) throws NoPrivilegeException, SQLException, NoConnection {
+		Test t = new Test();
+		t.saveEntity();
+	}
+
+	public int saveEntity() throws NoPrivilegeException, SQLException, NoConnection {
+		DefaultContext mctx1 = Oracle.connect("jdbc:oracle:thin:@10.1.1.105:1521/jono", "jono", "jono",false);
+		ExecutionContext ec = mctx1.getExecutionContext();
+
+		ec.setBatching(true);
+		for (int i = 0; i < 30000; i++)
+		{
+			String id = "test" + i;
+			#sql [ec] {
+				--INSERT INTO D_T0_OPTION (OPTION_KEY, OPTION_VALUE) VALUES ('slkdf', '33sd')
+				update D_T0_OPTION set OPTION_VALUE = 'lskdjfl' where OPTION_KEY = '3'
+			};
+		}
+		#sql { COMMIT };
+		int[] insertCounts = ec.executeBatch();
+		Oracle.close();
+		return 1;
+	}
+}
