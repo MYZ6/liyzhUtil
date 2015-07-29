@@ -1,15 +1,20 @@
-function transfer() {
+function transfer(_quotation,_len) {
+	if(_quotation == undefined){
+		_quotation = '"';
+	}if(_len == undefined){
+		_len = 170;
+	}
 	var source = $('#formatsqls').val();
 	$('#formatsqld').val(source);
 	var re = /(.+)((\n)|($))/g;//
 	var result = source.replace(re, function(a, b, c, d, e) {
 		// alert(b);
 		console.log(a, b, c, d);
-		var str = '" ' + b;
-		if (str.length < 170) {
-			str += getSpace(170 - str.length);
+		var str = _quotation + ' ' + b;
+		if (str.length < _len) {
+			str += getSpace(_len - str.length);
 		}
-		return str + ' "' + c + ' + ';
+		return str + ' ' + _quotation + c + ' + ';
 	});
 	var r2 = result.substring(0, result.lastIndexOf('+ '));
 	$('#formatsqld').val(r2);
